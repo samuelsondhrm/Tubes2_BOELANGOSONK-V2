@@ -11,6 +11,9 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
       },
+      '/scrape': 'http://localhost:8080',
+      '/traverse': 'http://localhost:8080',
+      '/tree': 'http://localhost:8080',
     },
   },
 })

@@ -30,6 +30,10 @@ func main() {
         api.POST("/lca",              handler.LCA)
     }
 
+    r.POST("/scrape", handler.Scrape)
+    r.POST("/traverse", handler.Traverse)
+    r.POST("/tree", handler.GetTree)
+
     port := os.Getenv("PORT")
     if port == "" {
         port = "8080"

@@ -19,12 +19,14 @@ export interface DOMNodeData {
 }
 
 export interface TraverseResponse {
-  tree: DOMNodeData
-  matches: DOMNodeData[]
-  visited_count: number
-  duration_ms: number
-  max_depth: number
-  log: TraversalStep[]
+  tree: DOMNode
+  maxDepth: number
+  result: TraversalResult
+  matches?: DOMNodeData[]
+  visited_count?: number
+  duration_ms?: number
+  max_depth?: number
+  log?: TraversalStep[]
 }
 
 export interface TraversalStep {
@@ -43,4 +45,38 @@ export interface LCAResponse {
   lca_node: DOMNodeData
   depth_a: number
   depth_b: number
+}
+
+export interface DOMNode {
+  id: string
+  tag: string
+  classes: string[]
+  idAttr: string
+  attributes: Record<string, string>
+  children: DOMNode[]
+  depth: number
+}
+
+export interface LogEntry {
+  step: number
+  nodeId: string
+  tag: string
+  matched: boolean
+  depth: number
+}
+
+export interface TraversalResult {
+  matches: DOMNode[]
+  visitedIds: string[]
+  matchedIds: string[]
+  pathIds: string[]
+  nodesVisited: number
+  elapsedMs: number
+  log: LogEntry[]
+}
+
+export interface ScrapeResponse {
+  rawHtml: string
+  tree: DOMNode
+  maxDepth: number
 }
