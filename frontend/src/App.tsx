@@ -2,6 +2,8 @@ import { ReactFlowProvider } from "@xyflow/react";
 import { DOMTreeVisualizer } from "./components/DOMTreeVisualizer";
 import { InputPanel } from "./components/InputPanel";
 import { ResultPanel } from "./components/ResultPanel";
+import { AnimationPanel } from "./components/AnimationPanel";
+import { LCAPanel } from "./components/LCAPanel";
 import { useTraversal } from "./hooks/useTraversal";
 
 export default function App() {
@@ -80,6 +82,14 @@ export default function App() {
               <ResultPanel result={data.result} maxDepth={data.maxDepth} />
             </div>
           )}
+
+          <div style={{ marginTop: 24, borderTop: "1px solid #1e293b", paddingTop: 20 }}>
+            <LCAPanel />
+          </div>
+
+          <div style={{ marginTop: 24, borderTop: "1px solid #1e293b", paddingTop: 20 }}>
+            <AnimationPanel />
+          </div>
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import type { ScrapeResponse, TraverseResponse } from "../types/api";
+import type { LCARequest, LCAResponse, ScrapeResponse, TraverseResponse } from "../types/api";
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
@@ -26,4 +26,6 @@ export const api = {
     selector: string;
     topN: number;
   }) => post<TraverseResponse>("/traverse", params),
+
+  lca: (req: LCARequest) => post<LCAResponse>("/api/lca", req),
 };

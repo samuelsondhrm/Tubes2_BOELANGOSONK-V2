@@ -7,6 +7,7 @@ import (
 	"tubes2/backend/internal/model"
 	"tubes2/backend/internal/parser"
 	"tubes2/backend/internal/scraper"
+	"tubes2/backend/internal/store"
 )
 
 type ScrapeRequest struct {
@@ -37,6 +38,8 @@ func Scrape(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	store.SetTree(tree)
 
 	c.JSON(http.StatusOK, ScrapeResponse{
 		RawHTML:  raw,
