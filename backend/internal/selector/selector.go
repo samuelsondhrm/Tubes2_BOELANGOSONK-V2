@@ -2,56 +2,107 @@ package selector
 
 import (
 	"strings"
-
 	"tubes2/backend/internal/model"
 )
 
-type TokenType int
-
-const (
-	TokenUniversal TokenType = iota
-	TokenTag
-	TokenClass
-	TokenID
-	TokenUnknown
-)
-
-type Token struct {
-	Type  TokenType
-	Value string
-}
-
-func Tokenize(raw string) Token {
-	s := strings.TrimSpace(raw)
-	switch {
-	case s == "*":
-		return Token{Type: TokenUniversal}
-	case strings.HasPrefix(s, "#"):
-		return Token{Type: TokenID, Value: s[1:]}
-	case strings.HasPrefix(s, "."):
-		return Token{Type: TokenClass, Value: s[1:]}
-	case s != "" && !strings.ContainsAny(s, " >+~"):
-		return Token{Type: TokenTag, Value: strings.ToLower(s)}
-	default:
-		return Token{Type: TokenUnknown, Value: s}
+func Matches(node *model.DOMNode, rawSelector string) bool {
+	tokens := tokenize(rawSelector)
+	if len(tokens) == 0 {
+		return false
 	}
+	return matchCombinator(node, tokens, len(tokens)-1)
 }
 
-func Matches(node *model.DOMNode, token Token) bool {
-	switch token.Type {
-	case TokenUniversal:
+func tokenize(s string) []string {
+	s = strings.ReplaceAll(s, ">", " > ")
+	s = strings.ReplaceAll(s, "+", " + ")
+	s = strings.ReplaceAll(s, "~", " ~ ")
+
+	fields := strings.Fields(s)
+	var tokens []string
+
+	for i, f := range fields {
+		if f == ">" || f == "+" || f == "~" {
+			tokens = append(tokens, f)
+		} else {
+			if i > 0 && tokens[len(tokens)-1] != ">" && tokens[len(tokens)-1] != "+" && tokens[len(tokens)-1] != "~" {
+				tokens = append(tokens, " ")
+			}
+			tokens = append(tokens, f)
+		}
+	}
+	return tokens
+}
+
+func matchCombinator(node *model.DOMNode, parts []string, idx int) bool {
+	if node == nil || idx < 0 {
+		return false
+	}
+	if !matchSingle(node, parts[idx]) {
+		return false
+	}
+	if idx == 0 {
 		return true
-	case TokenTag:
-		return strings.ToLower(node.Tag) == token.Value
-	case TokenClass:
+	}
+
+	combinator := parts[idx-1]
+	prevIdx := idx - 2
+
+	switch combinator {
+	case ">":
+		return matchCombinator(node.Parent, parts, prevIdx)
+	case " ":
+		curr := node.Parent
+		for curr != nil {
+			if matchCombinator(curr, parts, prevIdx) {
+				return true
+			}
+			curr = curr.Parent
+		}
+	case "+":
+		prev := getPrevSibling(node)
+		return matchCombinator(prev, parts, prevIdx)
+	case "~":
+		curr := getPrevSibling(node)
+		for curr != nil {
+			if matchCombinator(curr, parts, prevIdx) {
+				return true
+			}
+			curr = getPrevSibling(curr)
+		}
+	}
+	return false
+}
+
+func matchSingle(node *model.DOMNode, sel string) bool {
+	if node == nil {
+		return false
+	}
+	if sel == "*" {
+		return true
+	}
+	if strings.HasPrefix(sel, ".") {
 		for _, c := range node.Classes {
-			if c == token.Value {
+			if "."+c == sel {
 				return true
 			}
 		}
 		return false
-	case TokenID:
-		return node.IDAttr == token.Value
 	}
-	return false
+	if strings.HasPrefix(sel, "#") {
+		return "#"+node.IDAttr == sel
+	}
+	return node.Tag == sel
+}
+
+func getPrevSibling(node *model.DOMNode) *model.DOMNode {
+	if node == nil || node.Parent == nil {
+		return nil
+	}
+	for i, sibling := range node.Parent.Children {
+		if sibling == node && i > 0 {
+			return node.Parent.Children[i-1]
+		}
+	}
+	return nil
 }

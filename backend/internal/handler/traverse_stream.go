@@ -6,15 +6,14 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
-	"tubes2/backend/internal/algorithm"
 	"tubes2/backend/internal/model"
 	"tubes2/backend/internal/parser"
 	"tubes2/backend/internal/scraper"
 	"tubes2/backend/internal/traversal"
+
+	"github.com/gin-gonic/gin"
 )
 
-// GET /api/traverse/stream
 func TraverseStream(c *gin.Context) {
 	rawHTML := c.Query("html")
 	if rawHTML == "" {
@@ -51,25 +50,12 @@ func TraverseStream(c *gin.Context) {
 		return
 	}
 
-	var steps []model.TraversalStep
+	var resp *model.TraverseResponse
 	switch algo {
 	case "DFS", "dfs":
-		resp := algorithm.TraverseDFS(tree, sel, limit)
-		steps = resp.Log
+		resp = traversal.TraverseDFS(tree, sel, limit)
 	default:
-		result := traversal.BFS(tree, sel, limit)
-		for _, entry := range result.Log {
-			status := "visiting"
-			if entry.Matched {
-				status = "matched"
-			}
-			steps = append(steps, model.TraversalStep{
-				Step:   entry.Step,
-				NodeID: entry.NodeID,
-				Tag:    entry.Tag,
-				Status: status,
-			})
-		}
+		resp = traversal.BFS(tree, sel, limit)
 	}
 
 	c.Header("Content-Type", "text/event-stream")
@@ -84,7 +70,7 @@ func TraverseStream(c *gin.Context) {
 		return
 	}
 
-	for _, step := range steps {
+	for _, step := range resp.Log {
 		b, err := json.Marshal(step)
 		if err != nil {
 			continue

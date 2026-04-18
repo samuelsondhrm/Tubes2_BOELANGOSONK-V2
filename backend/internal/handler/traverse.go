@@ -3,11 +3,12 @@ package handler
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"tubes2/backend/internal/model"
 	"tubes2/backend/internal/parser"
 	"tubes2/backend/internal/scraper"
 	"tubes2/backend/internal/traversal"
+
+	"github.com/gin-gonic/gin"
 )
 
 type TraverseRequest struct {
@@ -16,12 +17,6 @@ type TraverseRequest struct {
 	Algorithm string `json:"algorithm" binding:"required"`
 	Selector  string `json:"selector" binding:"required"`
 	TopN      int    `json:"topN"`
-}
-
-type TraverseResponse struct {
-	Tree     *model.DOMNode          `json:"tree"`
-	MaxDepth int                     `json:"maxDepth"`
-	Result   traversal.TraversalResult `json:"result"`
 }
 
 func Traverse(c *gin.Context) {
@@ -51,20 +46,21 @@ func Traverse(c *gin.Context) {
 		return
 	}
 
-	var result traversal.TraversalResult
+	var result *model.TraverseResponse
 	switch req.Algorithm {
 	case "BFS", "bfs":
-		result = traversal.BFS(tree, req.Selector, req.TopN)
+		result = traversal.BFS(tree, req.Selector, req.TopN) // Sesuaikan ya do
+	case "DFS", "dfs":
+		result = traversal.TraverseDFS(tree, req.Selector, req.TopN)
 	default:
 		c.JSON(http.StatusBadRequest, gin.H{"error": "algorithm must be BFS or DFS"})
 		return
 	}
 
-	c.JSON(http.StatusOK, TraverseResponse{
-		Tree:     tree,
-		MaxDepth: model.MaxDepth(tree),
-		Result:   result,
-	})
+	result.MaxDepth = model.MaxDepth(tree)
+
+	go traversal.SaveTraversalLog(req.Algorithm, result.Log)
+	c.JSON(http.StatusOK, result)
 }
 
 func GetTree(c *gin.Context) {

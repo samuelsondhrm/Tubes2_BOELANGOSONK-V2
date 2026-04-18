@@ -2,12 +2,11 @@ package traversal
 
 import (
 	"time"
-
 	"tubes2/backend/internal/model"
 	"tubes2/backend/internal/selector"
 )
 
-func BFS(root *model.DOMNode, rawSelector string, topN int) *model.TraverseResponse {
+func TraverseDFS(root *model.DOMNode, rawSelector string, limit int) *model.TraverseResponse {
 	start := time.Now()
 
 	var matches []*model.DOMNode
@@ -18,11 +17,12 @@ func BFS(root *model.DOMNode, rawSelector string, topN int) *model.TraverseRespo
 		return &model.TraverseResponse{}
 	}
 
-	queue := []*model.DOMNode{root}
+	stack := []*model.DOMNode{root}
 
-	for len(queue) > 0 {
-		curr := queue[0]
-		queue = queue[1:]
+	for len(stack) > 0 {
+		n := len(stack)
+		curr := stack[n-1]
+		stack = stack[:n-1]
 
 		visitedCount++
 		logs = append(logs, model.TraversalStep{
@@ -36,12 +36,14 @@ func BFS(root *model.DOMNode, rawSelector string, topN int) *model.TraverseRespo
 			matches = append(matches, curr)
 			logs[len(logs)-1].Status = "matched"
 
-			if topN > 0 && len(matches) >= topN {
+			if limit > 0 && len(matches) >= limit {
 				break
 			}
 		}
 
-		queue = append(queue, curr.Children...)
+		for i := len(curr.Children) - 1; i >= 0; i-- {
+			stack = append(stack, curr.Children[i])
+		}
 	}
 
 	return &model.TraverseResponse{
