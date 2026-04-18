@@ -49,9 +49,9 @@ func Traverse(c *gin.Context) {
 	var result *model.TraverseResponse
 	switch req.Algorithm {
 	case "BFS", "bfs":
-		result = traversal.BFS(tree, req.Selector, req.TopN) // Sesuaikan ya do
+		result = traversal.ConcurrentBFS(tree, req.Selector, req.TopN)
 	case "DFS", "dfs":
-		result = traversal.TraverseDFS(tree, req.Selector, req.TopN)
+		result = traversal.ConcurrentDFS(tree, req.Selector, req.TopN)
 	default:
 		c.JSON(http.StatusBadRequest, gin.H{"error": "algorithm must be BFS or DFS"})
 		return

@@ -81,17 +81,30 @@ func matchSingle(node *model.DOMNode, sel string) bool {
 	if sel == "*" {
 		return true
 	}
-	if strings.HasPrefix(sel, ".") {
+
+	if idx := strings.Index(sel, "#"); idx != -1 {
+		tag := sel[:idx]
+		id := sel[idx+1:]
+		if tag != "" && node.Tag != tag {
+			return false
+		}
+		return node.IDAttr == id
+	}
+
+	if idx := strings.Index(sel, "."); idx != -1 {
+		tag := sel[:idx]
+		className := sel[idx+1:]
+		if tag != "" && node.Tag != tag {
+			return false
+		}
 		for _, c := range node.Classes {
-			if "."+c == sel {
+			if c == className {
 				return true
 			}
 		}
 		return false
 	}
-	if strings.HasPrefix(sel, "#") {
-		return "#"+node.IDAttr == sel
-	}
+
 	return node.Tag == sel
 }
 

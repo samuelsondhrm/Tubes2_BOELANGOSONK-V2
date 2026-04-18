@@ -53,9 +53,9 @@ func TraverseStream(c *gin.Context) {
 	var resp *model.TraverseResponse
 	switch algo {
 	case "DFS", "dfs":
-		resp = traversal.TraverseDFS(tree, sel, limit)
+		resp = traversal.ConcurrentDFS(tree, sel, limit)
 	default:
-		resp = traversal.BFS(tree, sel, limit)
+		resp = traversal.ConcurrentBFS(tree, sel, limit)
 	}
 
 	c.Header("Content-Type", "text/event-stream")
