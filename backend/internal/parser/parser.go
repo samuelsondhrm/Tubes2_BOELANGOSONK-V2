@@ -5,22 +5,53 @@ import (
 
 	"tubes2/backend/internal/model"
 	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 )
 
 func Parse(rawHTML string) (*model.DOMNode, error) {
-	doc, err := html.Parse(strings.NewReader(rawHTML))
+	contextNode := &html.Node{
+		Type:     html.ElementNode,
+		Data:     "body",
+		DataAtom: atom.Body,
+	}
+	nodes, err := html.ParseFragment(strings.NewReader(rawHTML), contextNode)
 	if err != nil {
 		return nil, err
 	}
 
+	var firstEl *html.Node
+	for _, n := range nodes {
+		if n.Type == html.ElementNode {
+			firstEl = n
+			break
+		}
+	}
+
 	root := model.NewRootNode()
 	root.ID = "node-0"
-	root.Tag = "#document"
+	root.Attributes = make(map[string]string)
 
-	for child := doc.FirstChild; child != nil; child = child.NextSibling {
-		if child.Type == html.ElementNode {
-			buildTree(child, root)
+	if firstEl == nil {
+		root.Tag = "div" // fallback
+		return root, nil
+	}
+
+	root.Tag = firstEl.Data
+	for _, attr := range firstEl.Attr {
+		switch attr.Key {
+		case "class":
+			root.Classes = strings.Fields(attr.Val)
+			root.Attributes["class"] = attr.Val
+		case "id":
+			root.IDAttr = attr.Val
+			root.Attributes["id"] = attr.Val
+		default:
+			root.Attributes[attr.Key] = attr.Val
 		}
+	}
+
+	for child := firstEl.FirstChild; child != nil; child = child.NextSibling {
+		buildTree(child, root)
 	}
 	return root, nil
 }

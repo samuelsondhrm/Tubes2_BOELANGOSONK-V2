@@ -14,3 +14,6 @@ backend/server
 
 # os
 .DS_Store
+
+backend/logs/
+*.log

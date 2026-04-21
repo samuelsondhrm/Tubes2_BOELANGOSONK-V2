@@ -1,111 +1,198 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
+/* ── Custom Styles from Stitch Design ──────── */
 
 body {
-  margin: 0;
+  font-family: 'Space Grotesk', sans-serif;
+  overflow: hidden;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
+.dark .glass {
+  background: rgba(15, 15, 18, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
+.eclipse-glow {
+  background: radial-gradient(circle at 100% 100%, rgba(255, 90, 31, 0.15) 0%, transparent 70%);
+}
+
+.node-line {
+  stroke: rgba(255, 90, 31, 0.2);
+  stroke-width: 1.5;
+}
+
+.node-line-active {
+  stroke: #ff5a1f;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 8px rgba(255, 90, 31, 0.8));
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 90, 31, 0.3);
+  border-radius: 10px;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) translateX(0px); opacity: 0; }
+  50% { opacity: 0.5; }
+  100% { transform: translateY(-100px) translateX(20px); opacity: 0; }
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: float 10s infinite linear;
+}
+
+.logo-orbital {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-orbital::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 90, 31, 0.3);
+  border-top-color: #ff5a1f;
+  border-left-color: #ff5a1f;
+  animation: spin 3s linear infinite;
+}
+
+.logo-orbital::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 90, 31, 0.2);
+  animation: spin 8s linear infinite reverse;
+}
+
+.logo-b {
+  font-weight: 700;
+  font-size: 20px;
+  color: white;
+  text-shadow: 0 0 10px rgba(255, 90, 31, 0.8);
+  z-index: 10;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+.btn-gradient {
+  background: linear-gradient(135deg, #ff5a1f 0%, #d83f05 100%);
+  box-shadow: 0 0 20px rgba(255, 90, 31, 0.4);
+}
+
+.btn-gradient:hover {
+  box-shadow: 0 0 30px rgba(255, 90, 31, 0.6);
+}
+
+.btn-gradient:active {
+  transform: scale(0.98);
+}
+
+.node-tag {
+  background: rgba(10, 10, 11, 0.8);
+  border: 1px solid rgba(255, 90, 31, 0.3);
   border-radius: 4px;
-  color: var(--text-h);
+  padding: 2px 6px;
+  box-shadow: 0 0 10px rgba(255, 90, 31, 0.2);
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+.node-tag-dim {
+  background: rgba(10, 10, 11, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+/* ── React Flow Overrides ──────────────────── */
+
+.react-flow__background {
+  background: transparent !important;
+}
+
+.react-flow__controls {
+  background: rgba(15, 15, 18, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  fill: rgba(255, 255, 255, 0.5) !important;
+}
+
+.react-flow__controls-button:hover {
+  background: rgba(255, 90, 31, 0.15) !important;
+  fill: #ff5a1f !important;
+}
+
+.react-flow__minimap {
+  background: rgba(10, 10, 11, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 12px !important;
+}
+
+/* ── Loading Animation ─────────────────────── */
+
+.loading-ring {
+  border: 2px solid transparent;
+  border-top-color: #ff5a1f;
+  border-radius: 50%;
+  animation: spin 1.2s linear infinite;
+}
+
+.loading-ring-reverse {
+  border: 2px solid transparent;
+  border-top-color: rgba(255, 90, 31, 0.5);
+  border-radius: 50%;
+  animation: spin 1.8s linear infinite reverse;
+}
+
+.loading-ring-slow {
+  border: 1px solid transparent;
+  border-top-color: rgba(255, 90, 31, 0.3);
+  border-radius: 50%;
+  animation: spin 2.4s linear infinite;
+}
+
+/* ── Reduced Motion ────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
