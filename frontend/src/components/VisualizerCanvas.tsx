@@ -153,7 +153,6 @@ function buildLabel(n: LayoutNode): string {
 
 interface Props {
   tree: DOMNode;
-  maxDepth: number;
   visitedIds?: string[];
   matchedIds?: string[];
   pathIds?: string[];
@@ -161,7 +160,6 @@ interface Props {
 
 export function VisualizerCanvas({
   tree,
-  maxDepth,
   visitedIds = [],
   matchedIds = [],
   pathIds = [],

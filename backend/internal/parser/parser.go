@@ -5,39 +5,27 @@ import (
 
 	"tubes2/backend/internal/model"
 	"golang.org/x/net/html"
-	"golang.org/x/net/html/atom"
 )
 
 func Parse(rawHTML string) (*model.DOMNode, error) {
-	contextNode := &html.Node{
-		Type:     html.ElementNode,
-		Data:     "body",
-		DataAtom: atom.Body,
-	}
-	nodes, err := html.ParseFragment(strings.NewReader(rawHTML), contextNode)
+	doc, err := html.Parse(strings.NewReader(rawHTML))
 	if err != nil {
 		return nil, err
 	}
 
-	var firstEl *html.Node
-	for _, n := range nodes {
-		if n.Type == html.ElementNode {
-			firstEl = n
-			break
-		}
-	}
+	el := findFirstElement(doc)
 
 	root := model.NewRootNode()
 	root.ID = "node-0"
 	root.Attributes = make(map[string]string)
 
-	if firstEl == nil {
+	if el == nil {
 		root.Tag = "div" // fallback
 		return root, nil
 	}
 
-	root.Tag = firstEl.Data
-	for _, attr := range firstEl.Attr {
+	root.Tag = el.Data
+	for _, attr := range el.Attr {
 		switch attr.Key {
 		case "class":
 			root.Classes = strings.Fields(attr.Val)
@@ -50,10 +38,19 @@ func Parse(rawHTML string) (*model.DOMNode, error) {
 		}
 	}
 
-	for child := firstEl.FirstChild; child != nil; child = child.NextSibling {
+	for child := el.FirstChild; child != nil; child = child.NextSibling {
 		buildTree(child, root)
 	}
 	return root, nil
+}
+
+func findFirstElement(n *html.Node) *html.Node {
+	for child := n.FirstChild; child != nil; child = child.NextSibling {
+		if child.Type == html.ElementNode {
+			return child
+		}
+	}
+	return nil
 }
 
 func buildTree(htmlNode *html.Node, parent *model.DOMNode) {

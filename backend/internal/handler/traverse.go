@@ -6,6 +6,7 @@ import (
 	"tubes2/backend/internal/model"
 	"tubes2/backend/internal/parser"
 	"tubes2/backend/internal/scraper"
+	"tubes2/backend/internal/store"
 	"tubes2/backend/internal/traversal"
 
 	"github.com/gin-gonic/gin"
@@ -45,6 +46,8 @@ func Traverse(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	store.SetTree(tree)
 
 	var result *model.TraverseResponse
 	switch req.Algorithm {

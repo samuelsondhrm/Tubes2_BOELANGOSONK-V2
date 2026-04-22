@@ -86,7 +86,6 @@ export default function App() {
                 <ReactFlowProvider>
                   <VisualizerCanvas
                     tree={data.tree}
-                    maxDepth={data.maxDepth}
                     visitedIds={data.visitedIds}
                     matchedIds={data.matchedIds}
                     pathIds={data.pathIds}
