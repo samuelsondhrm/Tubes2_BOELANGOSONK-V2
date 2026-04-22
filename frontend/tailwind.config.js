@@ -12,6 +12,7 @@ export default {
       fontFamily: {
         display: ["Space Grotesk", "sans-serif"],
         sans: ["Space Grotesk", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"],
       },
       borderRadius: {
         DEFAULT: "1rem",

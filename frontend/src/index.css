@@ -6,7 +6,7 @@
 
 body {
   font-family: 'Space Grotesk', sans-serif;
-  overflow: hidden;
+  /* overflow managed per-page by App.tsx */
 }
 
 .glass {
@@ -158,10 +158,95 @@ body {
   fill: #ff5a1f !important;
 }
 
-.react-flow__minimap {
+/* ── React Flow Controls (Light Mode) ── */
+:root:not(.dark) .react-flow__controls {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+:root:not(.dark) .react-flow__controls-button {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+  fill: rgba(0, 0, 0, 0.6) !important;
+}
+
+:root:not(.dark) .react-flow__controls-button:hover {
+  background: rgba(255, 90, 31, 0.1) !important;
+  fill: #ff5a1f !important;
+}
+
+/* ── React Flow Nodes ── */
+.rf-node {
+  border-radius: 8px !important;
+  padding: 8px 14px !important;
+  font-size: 12px !important;
+  font-family: 'Space Grotesk', monospace !important;
+  min-width: 80px !important;
+  max-width: 160px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  text-align: center !important;
+  transition: all 0.3s ease !important;
+}
+
+.rf-node-matched {
+  background: rgba(10, 10, 11, 0.9) !important;
+  border: 1px solid rgba(255, 90, 31, 0.8) !important;
+  color: rgba(255, 255, 255, 1) !important;
+  box-shadow: 0 0 16px rgba(255, 90, 31, 0.4) !important;
+  font-weight: 700 !important;
+}
+
+.rf-node-path {
   background: rgba(10, 10, 11, 0.8) !important;
+  border: 1px solid rgba(255, 90, 31, 0.5) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 0 10px rgba(255, 90, 31, 0.2) !important;
+  font-weight: 600 !important;
+}
+
+.rf-node-visited {
+  background: rgba(10, 10, 11, 0.7) !important;
+  border: 1px solid rgba(255, 90, 31, 0.2) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.rf-node-default {
+  background: rgba(10, 10, 11, 0.4) !important;
   border: 1px solid rgba(255, 255, 255, 0.05) !important;
-  border-radius: 12px !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* ── React Flow Nodes (Light Mode) ── */
+:root:not(.dark) .rf-node-matched {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(255, 90, 31, 0.8) !important;
+  color: #1a1a1b !important;
+  box-shadow: 0 0 12px rgba(255, 90, 31, 0.3) !important;
+}
+
+:root:not(.dark) .rf-node-path {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid rgba(255, 90, 31, 0.5) !important;
+  color: rgba(26, 26, 27, 0.9) !important;
+  box-shadow: 0 0 8px rgba(255, 90, 31, 0.15) !important;
+}
+
+:root:not(.dark) .rf-node-visited {
+  background: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid rgba(255, 90, 31, 0.3) !important;
+  color: rgba(26, 26, 27, 0.75) !important;
+}
+
+:root:not(.dark) .rf-node-default {
+  background: rgba(255, 255, 255, 0.5) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  color: rgba(26, 26, 27, 0.5) !important;
+}
+
+/* ── Hide React Flow Watermark ── */
+.react-flow__attribution {
+  display: none !important;
 }
 
 /* ── Loading Animation ─────────────────────── */
@@ -196,3 +281,254 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ══════════════════════════════════════════════
+   LANDING PAGE STYLES
+   ══════════════════════════════════════════════ */
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.node-line-svg {
+  stroke: rgba(255, 90, 31, 0.25);
+  stroke-width: 1.5;
+  fill: none;
+}
+.node-line-svg.active {
+  stroke: #ff5a1f;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 8px rgba(255, 90, 31, 0.8));
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
+}
+.pulse-soft { animation: pulse-soft 2.4s ease-in-out infinite; }
+
+@keyframes dash {
+  to { stroke-dashoffset: -24; }
+}
+.dash-flow {
+  stroke-dasharray: 4 6;
+  animation: dash 1.2s linear infinite;
+}
+
+.scanline {
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 90, 31, 0.08) 50%, transparent 100%);
+  height: 80px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+@keyframes scan {
+  0%   { transform: translateY(-100px); }
+  100% { transform: translateY(600px); }
+}
+.scanline-anim { animation: scan 6s linear infinite; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  background: rgba(255, 90, 31, 0.08);
+  border: 1px solid rgba(255, 90, 31, 0.25);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #ff5a1f;
+  font-weight: 600;
+}
+
+.tick-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #ff5a1f;
+  box-shadow: 0 0 8px rgba(255, 90, 31, 0.8);
+  flex-shrink: 0;
+}
+
+/* ── Unified Navbar ── */
+:root { --navbar-h: 64px; }
+
+.app-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: var(--navbar-h);
+  background: rgba(10, 10, 11, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.app-navbar__inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .app-navbar__inner { padding: 0 1.5rem; }
+}
+
+.divider-glow {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 90, 31, 0.4), transparent);
+}
+
+.nav-link {
+  position: relative;
+  padding-bottom: 4px;
+  color: rgba(255, 255, 255, 0.65);
+  transition: color 0.2s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: #ff5a1f;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.2s ease;
+}
+.nav-link:hover { color: #ff5a1f; }
+.nav-link:hover::after { transform: scaleX(0.6); }
+.nav-link.active { color: #ff5a1f; }
+.nav-link.active::after { transform: scaleX(1); }
+
+.stat-num {
+  font-weight: 700;
+  font-size: 40px;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.feature-card {
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+.feature-card:hover {
+  border-color: rgba(255, 90, 31, 0.35);
+  transform: translateY(-2px);
+}
+
+.fade-in {
+  animation: fadeUp 0.6s ease-out both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════════════
+   LIGHT MODE PALETTE
+   Background : #fdf8f5 (warm cream)
+   Surface    : rgba(255,255,255,0.82)
+   Text base  : #1a1a1b
+   Primary    : #ff5a1f (unchanged)
+   ══════════════════════════════════════════════ */
+
+:root:not(.dark) .glass {
+  background: rgba(255, 255, 255, 0.82) !important;
+  border: 1px solid rgba(0, 0, 0, 0.07) !important;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+}
+:root:not(.dark) .app-navbar {
+  background: rgba(253, 248, 245, 0.92) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 1px 12px rgba(0, 0, 0, 0.04);
+}
+:root:not(.dark) .eclipse-glow {
+  background: radial-gradient(circle at 100% 100%, rgba(255, 90, 31, 0.07) 0%, transparent 70%);
+}
+:root:not(.dark) .grid-bg {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px) !important;
+}
+:root:not(.dark) .particle { background: rgba(0, 0, 0, 0.18); }
+
+:root:not(.dark) .logo-b {
+  color: #1a1a1b;
+  text-shadow: 0 0 10px rgba(255, 90, 31, 0.35);
+}
+:root:not(.dark) .logo-orbital::before {
+  border-color: rgba(255, 90, 31, 0.2);
+  border-top-color: #ff5a1f;
+  border-left-color: #ff5a1f;
+}
+
+:root:not(.dark) .nav-link:not(.active) { color: rgba(26, 26, 27, 0.55) !important; }
+:root:not(.dark) .nav-link:hover        { color: #ff5a1f !important; }
+
+:root:not(.dark) .chip {
+  background: rgba(255, 90, 31, 0.06);
+  border-color: rgba(255, 90, 31, 0.20);
+}
+:root:not(.dark) .node-tag {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 90, 31, 0.30);
+}
+:root:not(.dark) .node-tag-dim {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(0, 0, 0, 0.10);
+}
+:root:not(.dark) .divider-glow {
+  background: linear-gradient(90deg, transparent, rgba(255, 90, 31, 0.22), transparent);
+}
+:root:not(.dark) .feature-card:hover { border-color: rgba(255, 90, 31, 0.30) !important; }
+
+:root:not(.dark) .text-white\/90 { color: rgba(26, 26, 27, 0.90) !important; }
+:root:not(.dark) .text-white\/80 { color: rgba(26, 26, 27, 0.80) !important; }
+:root:not(.dark) .text-white\/70 { color: rgba(26, 26, 27, 0.65) !important; }
+:root:not(.dark) .text-white\/60 { color: rgba(26, 26, 27, 0.55) !important; }
+:root:not(.dark) .text-white\/50 { color: rgba(26, 26, 27, 0.45) !important; }
+:root:not(.dark) .text-white\/40 { color: rgba(26, 26, 27, 0.35) !important; }
+:root:not(.dark) .text-white\/30 { color: rgba(26, 26, 27, 0.25) !important; }
+:root:not(.dark) .text-white\/20 { color: rgba(26, 26, 27, 0.18) !important; }
+
+:root:not(.dark) .bg-white\/5            { background-color: rgba(0, 0, 0, 0.04) !important; }
+:root:not(.dark) .bg-white\/10           { background-color: rgba(0, 0, 0, 0.06) !important; }
+:root:not(.dark) .hover\:bg-white\/5:hover { background-color: rgba(0, 0, 0, 0.04) !important; }
+:root:not(.dark) .bg-background-dark\/20 { background-color: rgba(253, 248, 245, 0.65) !important; }
+:root:not(.dark) .bg-primary\/10         { background-color: rgba(255, 90, 31, 0.08) !important; }
+
+:root:not(.dark) .border-white\/5  { border-color: rgba(0, 0, 0, 0.05) !important; }
+:root:not(.dark) .border-white\/10 { border-color: rgba(0, 0, 0, 0.07) !important; }
+
+:root:not(.dark) input,
+:root:not(.dark) textarea,
+:root:not(.dark) select {
+  color: #1a1a1b !important;
+  caret-color: #ff5a1f;
+}
+:root:not(.dark) input::placeholder,
+:root:not(.dark) textarea::placeholder { color: rgba(26, 26, 27, 0.35) !important; }
+
+:root:not(.dark) h1,
+:root:not(.dark) h2,
+:root:not(.dark) h3 { color: #1a1a1b; }

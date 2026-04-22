@@ -1,16 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
-import { Header } from "./components/Header";
+import { Navbar } from "./components/Navbar";
 import { ControlPanel } from "./components/ControlPanel";
 import { LCAPanel } from "./components/LCAPanel";
 import { VisualizerCanvas } from "./components/VisualizerCanvas";
 import { LogTerminal } from "./components/LogTerminal";
 import { StatsFooter } from "./components/StatsFooter";
 import { LoadingOverlay } from "./components/LoadingOverlay";
+import { LandingPage } from "./components/LandingPage";
 import { useTraversal, type TraversalParams } from "./hooks/useTraversal";
 import type { LCAResponse } from "./types/api";
 
+type Page = "home" | "visualizer";
+
 export default function App() {
+  const [page, setPage] = useState<Page>(() => {
+    try {
+      return (localStorage.getItem("boel_page") as Page) || "home";
+    } catch {
+      return "home";
+    }
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem("boel_page", page); } catch { /* ignore */ }
+    window.scrollTo({ top: 0, behavior: "instant" });
+    document.body.style.overflow = page === "visualizer" ? "hidden" : "auto";
+  }, [page]);
+
+  return (
+    <>
+      {/* ── Shared navbar — identical on every page ── */}
+      <Navbar page={page} setPage={setPage} />
+
+      {/* ── Page content ── */}
+      {page === "home" ? (
+        <LandingPage setPage={setPage} />
+      ) : (
+        <VisualizerPage />
+      )}
+    </>
+  );
+}
+
+function VisualizerPage() {
   const { data, loading, error, run } = useTraversal();
   const [lcaResult, setLcaResult] = useState<LCAResponse | null>(null);
   const [lastAlgorithm, setLastAlgorithm] = useState<string>("BFS");
@@ -34,10 +67,8 @@ export default function App() {
         <div className="particle" style={{ top: "10%", left: "85%", animationDelay: "7s" }} />
       </div>
 
-      {/* ── Main Layout ── */}
-      <div className="relative z-10 flex flex-col h-screen p-4 md:p-6 gap-6">
-        <Header />
-
+      {/* ── Main Layout (fills remaining viewport below navbar) ── */}
+      <div className="relative z-10 flex flex-col h-[calc(100vh-var(--navbar-h))] p-4 md:p-6 gap-6">
         <main className="flex-1 grid grid-cols-12 gap-6 overflow-hidden">
           {/* Left Sidebar */}
           <aside className="col-span-3 flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-2">
@@ -51,7 +82,9 @@ export default function App() {
               <div>
                 <h2 className="font-bold tracking-tighter text-2xl">DOM_VISUALIZER</h2>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className={`w-2 h-2 rounded-full ${loading ? 'bg-primary' : data ? 'bg-green-500' : 'bg-white/20'} animate-pulse`} />
+                  <span
+                    className={`w-2 h-2 rounded-full ${loading ? "bg-primary" : data ? "bg-green-500" : "bg-white/20"} animate-pulse`}
+                  />
                   <span className="text-[10px] uppercase tracking-widest font-medium opacity-60">
                     {loading ? "SCANNING_IN_PROGRESS" : data ? "VISUALIZATION_READY" : "AWAITING_INPUT"}
                   </span>
@@ -60,7 +93,7 @@ export default function App() {
               <div className="text-right">
                 <p className="text-[10px] opacity-40 uppercase">Depth Limit</p>
                 <p className="font-mono text-primary font-bold">
-                  MAX_DEPTH: {data?.maxDepth ?? '--'}
+                  MAX_DEPTH: {data?.maxDepth ?? "--"}
                 </p>
               </div>
             </div>
@@ -104,15 +137,6 @@ export default function App() {
         </main>
 
         <StatsFooter data={data} lcaResult={lcaResult} />
-      </div>
-
-      <div className="fixed top-6 right-8 z-50 flex gap-2">
-        <button
-          className="w-10 h-10 glass rounded-full flex items-center justify-center hover:bg-primary/20 transition-all cursor-pointer"
-          onClick={() => document.documentElement.classList.toggle('dark')}
-        >
-          <span className="material-icons text-xl">dark_mode</span>
-        </button>
       </div>
     </>
   );
