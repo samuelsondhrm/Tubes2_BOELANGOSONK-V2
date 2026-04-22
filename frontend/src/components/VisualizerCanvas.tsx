@@ -124,7 +124,16 @@ export function VisualizerCanvas({
     const rfNodes: Node[] = layoutNodes.map((n) => ({
       id: n.id,
       position: { x: n.x, y: n.y },
-      data: { label: buildLabel(n) },
+      data: { 
+        label: (
+          <div className="flex flex-col items-center">
+            <span style={{ fontSize: '9px', opacity: 0.6, marginBottom: '2px', fontFamily: 'monospace' }}>
+              ID: {n.id}
+            </span>
+            <span>{buildLabel(n)}</span>
+          </div>
+        )
+      },
       className: `rf-node rf-node-${n.status}`,
     }));
 

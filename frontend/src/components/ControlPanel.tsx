@@ -27,6 +27,12 @@ export function ControlPanel({ onSubmit, loading }: Props) {
     onSubmit({ url, rawHtml, algorithm, selector, topN });
   }
 
+  function handleModeChange(mode: "url" | "html") {
+    setInputMode(mode);
+    setUrl("");
+    setRawHtml("");
+  }
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {/* ── Traversal Engine Card ─────────────── */}
@@ -44,7 +50,7 @@ export function ControlPanel({ onSubmit, loading }: Props) {
                 ? "bg-primary text-white font-medium"
                 : "hover:bg-white/5"
             }`}
-            onClick={() => setInputMode("url")}
+            onClick={() => handleModeChange("url")}
           >
             URL
           </button>
@@ -55,7 +61,7 @@ export function ControlPanel({ onSubmit, loading }: Props) {
                 ? "bg-primary text-white font-medium"
                 : "hover:bg-white/5"
             }`}
-            onClick={() => setInputMode("html")}
+           onClick={() => handleModeChange("html")}
           >
             RAW HTML
           </button>
