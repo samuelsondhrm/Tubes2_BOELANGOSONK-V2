@@ -9,18 +9,23 @@ import { StatsFooter } from "./components/StatsFooter";
 import { LoadingOverlay } from "./components/LoadingOverlay";
 import { LandingPage } from "./components/LandingPage";
 import { useTraversal, type TraversalParams } from "./hooks/useTraversal";
+import { PlaybackControls } from "./components/PlaybackControls";
 import type { LCAResponse } from "./types/api";
 
 type Page = "home" | "visualizer";
 
+function getInitialPage(): Page {
+  try {
+    const saved = localStorage.getItem("boel_page");
+    if (saved === "visualizer") return "visualizer";
+  } catch (e: unknown) {
+    void e;
+  }
+  return "home";
+}
+
 export default function App() {
-  const [page, setPage] = useState<Page>(() => {
-    try {
-      return (localStorage.getItem("boel_page") as Page) || "home";
-    } catch {
-      return "home";
-    }
-  });
+  const [page, setPage] = useState<Page>(getInitialPage);
 
   useEffect(() => {
     try { localStorage.setItem("boel_page", page); } catch { /* ignore */ }
@@ -44,12 +49,26 @@ export default function App() {
 }
 
 function VisualizerPage() {
-  const { data, loading, error, run } = useTraversal();
+  const { 
+    data, 
+    loading, 
+    error, 
+    run,
+    currentStep,
+    totalSteps,
+    isPlaying,
+    setIsPlaying,
+    setCurrentStep,
+    replay,
+    playbackSpeed,
+    setPlaybackSpeed,
+  } = useTraversal();
   const [lcaResult, setLcaResult] = useState<LCAResponse | null>(null);
   const [lastAlgorithm, setLastAlgorithm] = useState<string>("BFS");
 
   const handleRun = (params: TraversalParams) => {
     setLastAlgorithm(params.algorithm);
+    setLcaResult(null);
     run(params);
   };
 
@@ -116,14 +135,27 @@ function VisualizerPage() {
               )}
 
               {data && (
-                <ReactFlowProvider>
-                  <VisualizerCanvas
-                    tree={data.tree}
-                    visitedIds={data.visitedIds}
-                    matchedIds={data.matchedIds}
-                    pathIds={data.pathIds}
+                <>
+                  <ReactFlowProvider>
+                    <VisualizerCanvas
+                      tree={data.tree}
+                      visitedIds={data.visitedIds}
+                      matchedIds={data.matchedIds}
+                      pathIds={data.pathIds}
+                    />
+                  </ReactFlowProvider>
+
+                  <PlaybackControls
+                    currentStep={currentStep}
+                    totalSteps={totalSteps}
+                    isPlaying={isPlaying}
+                    onTogglePlay={setIsPlaying}
+                    onStepChange={setCurrentStep}
+                    onReplay={replay}
+                    speed={playbackSpeed}
+                    onSpeedChange={setPlaybackSpeed}
                   />
-                </ReactFlowProvider>
+                </>
               )}
             </div>
           </section>
