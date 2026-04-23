@@ -1,7 +1,6 @@
 package traversal
 
 import (
-	"context"
 	"sync"
 	"time"
 
@@ -10,6 +9,7 @@ import (
 )
 
 type matchResult struct {
+	SeqIdx  int
 	Node    *model.DOMNode
 	IsMatch bool
 }
@@ -25,102 +25,83 @@ func ConcurrentBFS(root *model.DOMNode, rawSel string, limit int) *model.Travers
 func runConcurrent(root *model.DOMNode, rawSel string, limit int, isDFS bool) *model.TraverseResponse {
 	start := time.Now()
 	if root == nil {
-		return &model.TraverseResponse{}
+		return &model.TraverseResponse{Matches: make([]*model.DOMNode, 0)}
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	jobs := make(chan *model.DOMNode)
-	results := make(chan matchResult)
-	var wg sync.WaitGroup
 	workerCount := 4
-
-	for i := 0; i < workerCount; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for {
-				select {
-				case <-ctx.Done():
-					return
-				case node, ok := <-jobs:
-					if !ok {
-						return
-					}
-					isMatch := selector.Matches(node, rawSel)
-					select {
-					case results <- matchResult{Node: node, IsMatch: isMatch}:
-					case <-ctx.Done():
-						return
-					}
-				}
-			}
-		}()
-	}
-
-	var matches []*model.DOMNode
-	var logs []model.TraversalStep
+	matches := make([]*model.DOMNode, 0)
+	logs := make([]model.TraversalStep, 0)
 	visitedCount := 0
 
 	frontier := []*model.DOMNode{root}
-	pendingJobs := 0
 
-SearchLoop:
-	for pendingJobs > 0 || len(frontier) > 0 {
-		var jobChan chan<- *model.DOMNode
-		var nextNode *model.DOMNode
-
-		if len(frontier) > 0 {
-			jobChan = jobs
-			if isDFS {
-				nextNode = frontier[len(frontier)-1]
-			} else {
-				nextNode = frontier[0]
-			}
+	for len(frontier) > 0 && (limit <= 0 || len(matches) < limit) {
+		batchSize := workerCount
+		if batchSize > len(frontier) {
+			batchSize = len(frontier)
 		}
 
-		select {
-		case jobChan <- nextNode:
-			if isDFS {
-				frontier = frontier[:len(frontier)-1]
-			} else {
-				frontier = frontier[1:]
+		var batch []*model.DOMNode
+		if isDFS {
+			startIdx := len(frontier) - batchSize
+			batch = make([]*model.DOMNode, batchSize)
+			copy(batch, frontier[startIdx:])
+			for i, j := 0, len(batch)-1; i < j; i, j = i+1, j-1 {
+				batch[i], batch[j] = batch[j], batch[i]
 			}
-			pendingJobs++
+			frontier = frontier[:startIdx]
+		} else {
+			batch = frontier[:batchSize]
+			frontier = frontier[batchSize:]
+		}
 
-		case res := <-results:
-			pendingJobs--
+		results := make([]bool, batchSize)
+		var wg sync.WaitGroup
+
+		for i, node := range batch {
+			wg.Add(1)
+			go func(idx int, n *model.DOMNode) {
+				defer wg.Done()
+				results[idx] = selector.Matches(n, rawSel)
+			}(i, node)
+		}
+
+		wg.Wait()
+
+		for i, node := range batch {
 			visitedCount++
+			isMatch := results[i]
+
+			status := "visiting"
+			if isMatch {
+				status = "matched"
+			}
 
 			logs = append(logs, model.TraversalStep{
 				Step:   visitedCount,
-				NodeID: res.Node.ID,
-				Tag:    res.Node.Tag,
-				Status: "visiting",
+				NodeID: node.ID,
+				Tag:    node.Tag,
+				Status: status,
 			})
 
-			if res.IsMatch {
-				matches = append(matches, res.Node)
-				logs[len(logs)-1].Status = "matched"
+			if isMatch {
+				matches = append(matches, node)
 				if limit > 0 && len(matches) >= limit {
-					break SearchLoop
+					goto Done
 				}
 			}
 
 			if isDFS {
-				for i := len(res.Node.Children) - 1; i >= 0; i-- {
-					frontier = append(frontier, res.Node.Children[i])
+				for j := len(node.Children) - 1; j >= 0; j-- {
+					frontier = append(frontier, node.Children[j])
 				}
 			} else {
-				frontier = append(frontier, res.Node.Children...)
+				frontier = append(frontier, node.Children...)
 			}
 		}
 	}
 
-	cancel()
-	wg.Wait()
-
+Done:
 	return &model.TraverseResponse{
 		Tree:         root,
 		Matches:      matches,

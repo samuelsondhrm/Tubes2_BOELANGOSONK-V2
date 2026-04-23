@@ -47,7 +47,9 @@ func Traverse(c *gin.Context) {
 		return
 	}
 
-	store.SetTree(tree)
+	if req.URL != "" {
+        store.SetTree(tree)
+    }
 
 	var result *model.TraverseResponse
 	switch req.Algorithm {

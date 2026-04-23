@@ -82,30 +82,42 @@ func matchSingle(node *model.DOMNode, sel string) bool {
 		return true
 	}
 
-	if idx := strings.Index(sel, "#"); idx != -1 {
-		tag := sel[:idx]
-		id := sel[idx+1:]
-		if tag != "" && node.Tag != tag {
-			return false
-		}
-		return node.IDAttr == id
-	}
+	if strings.HasPrefix(sel, "[") && strings.HasSuffix(sel, "]") {
+        inner := sel[1 : len(sel)-1]
+        if strings.Contains(inner, "=") {
+            parts := strings.SplitN(inner, "=", 2)
+            key := strings.TrimSpace(parts[0])
+            val := strings.Trim(strings.TrimSpace(parts[1]), "\"'")
+            return node.Attributes[key] == val
+        }
+        _, ok := node.Attributes[inner]
+        return ok
+    }
 
-	if idx := strings.Index(sel, "."); idx != -1 {
-		tag := sel[:idx]
-		className := sel[idx+1:]
-		if tag != "" && node.Tag != tag {
-			return false
-		}
-		for _, c := range node.Classes {
-			if c == className {
-				return true
-			}
-		}
-		return false
-	}
+    if idx := strings.Index(sel, "#"); idx != -1 {
+        tag := sel[:idx]
+        id := sel[idx+1:]
+        if tag != "" && node.Tag != tag {
+            return false
+        }
+        return node.IDAttr == id
+    }
 
-	return node.Tag == sel
+    if idx := strings.Index(sel, "."); idx != -1 {
+        tag := sel[:idx]
+        className := sel[idx+1:]
+        if tag != "" && node.Tag != tag {
+            return false
+        }
+        for _, c := range node.Classes {
+            if c == className {
+                return true
+            }
+        }
+        return false
+    }
+
+    return node.Tag == sel
 }
 
 func getPrevSibling(node *model.DOMNode) *model.DOMNode {
