@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { api } from "../api/client";
 import type {
   Algorithm,
@@ -15,7 +15,6 @@ export interface TraversalParams {
   selector: string;
   topN: number;
 }
-
 
 function buildParentMap(
   node: DOMNode,
@@ -38,14 +37,13 @@ function computePathIds(tree: DOMNode, matchedIds: string[]): string[] {
   for (const id of matchedIds) {
     let current: string | undefined = id;
     while (current) {
-      if (pathSet.has(current)) break; // already traced this path
+      if (pathSet.has(current)) break;
       pathSet.add(current);
       current = parentMap.get(current);
     }
   }
   return Array.from(pathSet);
 }
-
 
 function transformResponse(raw: BackendTraverseResponse): TraversalData {
   const matches = raw.matches ?? [];
@@ -73,15 +71,18 @@ function transformResponse(raw: BackendTraverseResponse): TraversalData {
   };
 }
 
-
 export function useTraversal() {
-  const [data, setData] = useState<TraversalData | null>(null);
+  const [fullData, setFullData] = useState<TraversalData | null>(null);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(200);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const run = useCallback(async (params: TraversalParams) => {
     setLoading(true);
     setError(null);
+    setIsPlaying(false);
     try {
       const raw = await api.traverse({
         url: params.url || undefined,
@@ -91,13 +92,62 @@ export function useTraversal() {
         topN: params.topN,
       });
       const transformed = transformResponse(raw);
-      setData(transformed);
+      setFullData(transformed);
+      setCurrentStep(transformed.log.length);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Terjadi kesalahan");
+      setError(e instanceof Error ? e.message : "Terjadi kesalahan koneksi");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  return { data, loading, error, run };
+  useEffect(() => {
+    let interval: number | undefined;
+    if (isPlaying && fullData && currentStep < fullData.log.length) {
+      interval = window.setInterval(() => {
+        setCurrentStep((prev) => prev + 1);
+      }, playbackSpeed);
+    } else if (isPlaying) {
+      setIsPlaying(false);
+    }
+    return () => {
+      if (interval !== undefined) clearInterval(interval);
+    };
+  }, [isPlaying, currentStep, fullData, playbackSpeed]);
+
+  const animatedData = useMemo(() => {
+    if (!fullData) return null;
+
+    const slicedLog = fullData.log.slice(0, currentStep);
+    const visitedIds = slicedLog.map((l) => l.nodeId);
+    const visitedSet = new Set(visitedIds);
+    const currentMatchedIds = fullData.matchedIds.filter((id) => visitedSet.has(id));
+    const currentPathIds = computePathIds(fullData.tree, currentMatchedIds);
+
+    return {
+      ...fullData,
+      visitedIds,
+      matchedIds: currentMatchedIds,
+      pathIds: currentPathIds,
+    };
+  }, [fullData, currentStep]);
+
+  return {
+    data: animatedData,
+    fullData,
+    loading,
+    error,
+    run,
+    currentStep,
+    totalSteps: fullData?.log.length ?? 0,
+    isPlaying,
+    setIsPlaying,
+    setCurrentStep,
+    playbackSpeed,
+    setPlaybackSpeed,
+    replay: () => {
+      setCurrentStep(0);
+      setIsPlaying(true);
+    },
+  };
 }

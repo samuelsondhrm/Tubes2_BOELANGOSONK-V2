@@ -136,14 +136,14 @@ export function ControlPanel({ onSubmit, loading }: Props) {
           <label className="block">
             <span className="text-xs opacity-50 block mb-2">View Mode</span>
             <select
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none text-white"
               value={viewMode}
               onChange={(e) =>
                 setViewMode(e.target.value as "top_n" | "all")
               }
             >
-              <option value="top_n">Top N Occurrences</option>
-              <option value="all">All Occurrences</option>
+              <option value="top_n" className="text-black">Top N Occurrences</option>
+              <option value="all" className="text-black">All Occurrences</option>
             </select>
           </label>
 

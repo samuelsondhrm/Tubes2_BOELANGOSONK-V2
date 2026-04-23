@@ -26,7 +26,7 @@ interface LayoutNode {
 }
 
 function computeLayout(
-  node: DOMNode,
+  node: DOMNode | null | undefined,
   visitedSet: Set<string>,
   matchedSet: Set<string>,
   pathSet: Set<string>,
@@ -36,6 +36,8 @@ function computeLayout(
   depth: number,
   startX: number
 ): number {
+  if (!node) return 0;
+
   let currentX = startX;
   let subtreeWidth = 0;
 
@@ -69,7 +71,10 @@ function computeLayout(
   });
 
   if (parentId) {
-    const isActive = status === "matched" || status === "path";
+    const targetIsActive = status === "matched" || status === "path";
+    const sourceIsActive = matchedSet.has(parentId) || pathSet.has(parentId);
+    const isActive = targetIsActive && sourceIsActive;
+
     edges.push({
       id: `e-${parentId}-${node.id}`,
       source: parentId,
@@ -87,17 +92,15 @@ function computeLayout(
   return width;
 }
 
-
-
 function buildLabel(n: LayoutNode): string {
   let label = `<${n.tag}>`;
   if (n.idAttr) label += ` #${n.idAttr}`;
-  if (n.classes.length) label += ` .${n.classes.join(".")}`;
+  if (n.classes && n.classes.length > 0) label += ` .${n.classes.join(".")}`;
   return label;
 }
 
 interface Props {
-  tree: DOMNode;
+  tree: DOMNode | null;
   visitedIds?: string[];
   matchedIds?: string[];
   pathIds?: string[];
@@ -116,23 +119,26 @@ export function VisualizerCanvas({
   const { nodes, edges } = useMemo(() => {
     const layoutNodes: LayoutNode[] = [];
     const layoutEdges: Edge[] = [];
-    computeLayout(
-      tree, visitedSet, matchedSet, pathSet,
-      layoutNodes, layoutEdges, null, 0, 0
-    );
+
+    if (tree) {
+      computeLayout(
+        tree, visitedSet, matchedSet, pathSet,
+        layoutNodes, layoutEdges, null, 0, 0
+      );
+    }
 
     const rfNodes: Node[] = layoutNodes.map((n) => ({
       id: n.id,
       position: { x: n.x, y: n.y },
-      data: { 
+      data: {
         label: (
           <div className="flex flex-col items-center">
-            <span style={{ fontSize: '9px', opacity: 0.6, marginBottom: '2px', fontFamily: 'monospace' }}>
+            <span style={{ fontSize: "9px", opacity: 0.6, marginBottom: "2px", fontFamily: "monospace" }}>
               ID: {n.id}
             </span>
             <span>{buildLabel(n)}</span>
           </div>
-        )
+        ),
       },
       className: `rf-node rf-node-${n.status}`,
     }));
