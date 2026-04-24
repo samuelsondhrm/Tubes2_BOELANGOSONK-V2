@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
+import { SPEED_PRESETS } from "../components/PlaybackControls";
 import { api } from "../api/client";
 import type {
   Algorithm,
@@ -75,7 +76,7 @@ export function useTraversal() {
   const [fullData, setFullData] = useState<TraversalData | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState(200);
+  const [playbackSpeed, setPlaybackSpeed] = useState<number>(SPEED_PRESETS[1].ms);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -104,8 +105,14 @@ export function useTraversal() {
   useEffect(() => {
     let interval: number | undefined;
     if (isPlaying && fullData && currentStep < fullData.log.length) {
+      const preset = SPEED_PRESETS.find((p) => p.ms === playbackSpeed) ?? SPEED_PRESETS[1];
+      const batchSize = preset.batch;
+
       interval = window.setInterval(() => {
-        setCurrentStep((prev) => prev + 1);
+        setCurrentStep((prev) => {
+          const next = prev + batchSize;
+          return next >= (fullData?.log.length ?? 0) ? (fullData?.log.length ?? 0) : next;
+        });
       }, playbackSpeed);
     } else if (isPlaying) {
       setIsPlaying(false);
