@@ -5,7 +5,7 @@
 > Tugas Besar 2 IF2211 Algorithm Strategy — Semester II 2025/2026  
 > Institut Teknologi Bandung
 
-**Live Demo:** [http://boelangoesonk.malaysiawest.cloudapp.azure.com](http://boelangoesonk.malaysiawest.cloudapp.azure.com)
+**Live Demo:** [boelangosonk.malaysiawest.cloudapp.azure.com](boelangosonk.malaysiawest.cloudapp.azure.com)
 
 ## Table of Contents
 
