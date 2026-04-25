@@ -268,9 +268,9 @@ cd backend && go build -o server ./cmd/main.go
 
 | Name | Student ID | Primary Responsibilities |
 |---|---|---|
-| Reinhard Alfonzo Hutabarat | 13524056 | HTML Parser, BFS Algorithm, DOM Tree Visualizer (FE) |
-| Edward David Rumahorbo | 13524036 | DFS Algorithm, CSS Selector Engine, Input & Result UI (FE) |
 | Samuelson Dharmawan T. | 13524001 | LCA Binary Lifting, SSE Stream, Traversal Animation (FE), Docker & Azure Deployment |
+| Edward David Rumahorbo | 13524036 | HTML Parser, BFS Algorithm, DOM Tree Visualizer (FE) |
+| Reinhard Alfonzo Hutabarat | 13524056 | DFS Algorithm, CSS Selector Engine, Input & Result UI (FE) |
 
 ---
 
