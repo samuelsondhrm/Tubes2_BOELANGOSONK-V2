@@ -6,7 +6,6 @@
 > Institut Teknologi Bandung
 
 **Live Demo:** [boelangosonk.malaysiawest.cloudapp.azure.com](boelangosonk.malaysiawest.cloudapp.azure.com)
-
 ## Table of Contents
 
 - [Application Overview](#application-overview)
